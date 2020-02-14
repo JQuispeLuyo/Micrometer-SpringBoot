@@ -57,6 +57,17 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 
+
+		<!-- MongoDB -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
