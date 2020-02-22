@@ -1,22 +1,38 @@
 package com.jquispeluyo.micrometer.config;
 
+import com.jquispeluyo.micrometer.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
+@EnableWebSecurity
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private UserService userDetailsService;
+
+    @Autowired
+    private BCryptPasswordEncoder bcrypt;
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        return bCryptPasswordEncoder;
+    }
+
 
     // Create 2 users for demo
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
-        auth.inMemoryAuthentication()
-                .withUser("user").password("{noop}password").roles("USER")
-                .and()
-                .withUser("admin").password("{noop}password").roles("USER", "ADMIN");
+        auth.userDetailsService(userDetailsService).passwordEncoder(bcrypt);
 
     }
 
@@ -29,6 +45,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/profile/**").hasRole("USER")
                 .antMatchers(HttpMethod.GET, "/profile/people/**").hasRole("USER")
                 .antMatchers(HttpMethod.POST, "/profile/people").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PUT, "/profile/people/**").hasRole("ADMIN")
